@@ -2,25 +2,35 @@ import fs from "fs";
 import path from "path";
 
 export default function handler(req, res) {
+  const { roll } = req.query;
 
-    if (req.method !== "POST") {
-        return res.status(405).json({ message: "Method not allowed" });
-    }
+  const filePath = path.join(process.cwd(), "students.json");
+  const students = JSON.parse(fs.readFileSync(filePath));
 
-    const { name, enrollment, branch } = req.body;
+  const student = students.find(s => s.roll === roll);
 
-    const filePath = path.join(process.cwd(), "students.json");
-    const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  if (!student) {
+    return res.status(404).json({ success: false, message: "Student Not Found" });
+  }
 
-    const studentFound = data.find(student =>
-        student.name === name &&
-        student.enrollment === enrollment &&
-        student.branch === branch
-    );
+  if (student.scanned) {
+    return res.status(200).json({
+      success: false,
+      message: "Already Scanned",
+      name: student.name
+    });
+  }
 
-    if (studentFound) {
-        return res.status(200).json({ success: true });
-    } else {
-        return res.status(404).json({ success: false });
-    }
+  // Mark as scanned
+  student.scanned = true;
+  student.entryTime = new Date().toISOString();
+
+  fs.writeFileSync(filePath, JSON.stringify(students, null, 2));
+
+  return res.status(200).json({
+    success: true,
+    message: "Entry Allowed",
+    name: student.name,
+    time: student.entryTime
+  });
 }
