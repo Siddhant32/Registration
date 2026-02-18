@@ -1,0 +1,12 @@
+[
+  {
+    "name": "rahul sharma",
+    "enrollment": "12345",
+    "branch": "Computer Engineering"
+  },
+  {
+    "name": "amit patil",
+    "enrollment": "67890",
+    "branch": "Mechanical Engineering"
+  }
+]
