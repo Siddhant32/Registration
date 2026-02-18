@@ -13,76 +13,7 @@ body {
     color: white;
     text-align: center;
     padding: 20px;
+    transition: background 0.3s ease;
 }
 #reader {
-    width: 300px;
-    margin: auto;
-}
-</style>
-</head>
-
-<body>
-
-<h3>🎫 Gate Entry Scanner</h3>
-
-<div id="reader"></div>
-
-<div class="mt-3">
-    <div id="result"></div>
-    <div id="count" class="fw-bold mt-2"></div>
-</div>
-
-<script>
-
-function onScanSuccess(decodedText) {
-
-    // 🔓 Decode Base64 back to enrollment
-    let enrollment;
-
-    try {
-        enrollment = atob(decodedText);
-    } catch (error) {
-        document.getElementById("result").innerHTML =
-        `<div class="alert alert-danger">Invalid QR Format ❌</div>`;
-        return;
-    }
-
-    fetch("/api/scan", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ enrollment })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        if(data.status === "success"){
-            document.getElementById("result").innerHTML =
-            `<div class="alert alert-success">Entry Allowed ✅</div>`;
-        }
-        else if(data.status === "duplicate"){
-            document.getElementById("result").innerHTML =
-            `<div class="alert alert-warning">Already Entered ⚠️</div>`;
-        }
-        else{
-            document.getElementById("result").innerHTML =
-            `<div class="alert alert-danger">Invalid Student ❌</div>`;
-        }
-
-        document.getElementById("count").innerText =
-        "Total Entries: " + data.total;
-    });
-
-}
-
-// Start camera scanner
-new Html5QrcodeScanner("reader", {
-    fps: 10,
-    qrbox: 250
-}).render(onScanSuccess);
-
-</script>
-
-</body>
-</html>
+    width: 300p
