@@ -1,9 +1,10 @@
 [
   {
-    "name": "joe",
-    "roll": "1212",
-    "department": "Computer Engineering",
-    "scanned": false,
-    "entryTime": null
+    "name": "Rahul Patil",
+    "enrollment": "1212"
+  },
+  {
+    "name": "Sneha Sharma",
+    "enrollment": "3434"
   }
 ]
