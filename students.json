@@ -1,12 +1,9 @@
 [
   {
-    "name": "siddhant shekhar chandanshiv",
-    "enrollment": "23110220291",
-    "branch": "Computer Engineering"
-  },
-  {
-    "name": "amit patil",
-    "enrollment": "67890",
-    "branch": "Mechanical Engineering"
+    "name": "siddhant",
+    "roll": "23110220291",
+    "department": "Computer engineering",
+    "scanned": false,
+    "entryTime": null
   }
 ]
