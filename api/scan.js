@@ -1,62 +1,49 @@
-import fs from "fs";
-import path from "path";
+const students = require("../students.json");
+
+let scannedToday = [];
 
 export default function handler(req, res) {
 
-    if (req.method !== "POST") {
-        return res.status(405).json({ message: "Method not allowed" });
-    }
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-    const { enrollment } = req.body;
+  let enrollment = String(req.body.enrollment).trim();
 
-    if (!enrollment) {
-        return res.status(400).json({ status: "invalid" });
-    }
+  const student = students.find(
+    s => String(s.enrollment) === enrollment
+  );
 
-    const studentsPath = path.join(process.cwd(), "students.json");
-    const entriesPath = path.join(process.cwd(), "entries.json");
+  if (!student) {
+    return res.json({ status: "invalid" });
+  }
 
-    // Read student list
-    const students = JSON.parse(fs.readFileSync(studentsPath, "utf8"));
+  const alreadyScanned = scannedToday.find(
+    s => s.enrollment === enrollment
+  );
 
-    // Check if student exists
-    const studentExists = students.find(
-        s => s.enrollment === enrollment
-    );
-
-    if (!studentExists) {
-        return res.status(404).json({ status: "invalid" });
-    }
-
-    // Create entries.json if not exists
-    if (!fs.existsSync(entriesPath)) {
-        fs.writeFileSync(entriesPath, JSON.stringify([]));
-    }
-
-    let entries = JSON.parse(fs.readFileSync(entriesPath, "utf8"));
-
-    // Check duplicate entry
-    const alreadyEntered = entries.find(
-        e => e.enrollment === enrollment
-    );
-
-    if (alreadyEntered) {
-        return res.status(200).json({
-            status: "duplicate",
-            total: entries.length
-        });
-    }
-
-    // Add new entry
-    entries.push({
-        enrollment,
-        time: new Date().toISOString()
+  if (alreadyScanned) {
+    return res.json({
+      status: "duplicate",
+      name: student.name,
+      enrollment: student.enrollment,
+      time: alreadyScanned.time,
+      total: scannedToday.length
     });
+  }
 
-    fs.writeFileSync(entriesPath, JSON.stringify(entries, null, 2));
+  const entryTime = new Date().toISOString();
 
-    return res.status(200).json({
-        status: "success",
-        total: entries.length
-    });
+  scannedToday.push({
+    enrollment,
+    time: entryTime
+  });
+
+  return res.json({
+    status: "success",
+    name: student.name,
+    enrollment: student.enrollment,
+    time: entryTime,
+    total: scannedToday.length
+  });
 }
