@@ -87,31 +87,40 @@ Generate QR
 </div>
 
 <script>
+async function generateQR() {
 
-function generateQR() {
+  document.getElementById("qrcode").innerHTML = "";
 
-document.getElementById("qrcode").innerHTML = "";
+  let enrollment = document.getElementById("enrollment").value.trim();
 
-let enrollment = document.getElementById("enrollment").value.trim();
-
-// Validate numeric only
-if(!/^[0-9]+$/.test(enrollment)){
+  if(!/^[0-9]+$/.test(enrollment)){
     alert("Enrollment must contain only numbers!");
     return;
-}
+  }
 
-// 🔐 Encode enrollment using Base64
-let encodedEnrollment = btoa(enrollment);
+  const res = await fetch("/api/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ enrollment })
+  });
 
-// Generate QR with encoded value
-new QRCode(document.getElementById("qrcode"), {
-    text: encodedEnrollment,
+  const data = await res.json();
+
+  if(!data.success){
+    alert("Student not found in system ❌");
+    return;
+  }
+
+  let encoded = btoa(enrollment);
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: encoded,
     width: 200,
     height: 200
-});
+  });
 }
-
 </script>
+
 
 </body>
 </html>
