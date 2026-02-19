@@ -86,43 +86,47 @@ Generate QR
 </div>
 </div>
 </div>
-
 <script>
 async function generateQR() {
 
   document.getElementById("qrcode").innerHTML = "";
 
-  let enrollment = document.getElementById("enrollment").value.trim();
-  let branch = document.getElementById("branch").value.trim();
-  let name = document.getElementById("name").value.trim();
+  const enrollment = document.getElementById("enrollment").value.trim();
+  const name = document.getElementById("name").value.trim();
+  const branch = document.getElementById("branch").value.trim();
 
-  if (!name || !enrollment || !branch) {
-    alert("All fields required");
+  if (!enrollment || !name || !branch) {
+    alert("All fields are required");
     return;
   }
 
-  const res = await fetch("/api/verify", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ enrollment, branch, name })
-  });
+  try {
 
-  const data = await res.json();
+    const res = await fetch("/api/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enrollment, name, branch })
+    });
 
-  console.log("API Response:", data);
+    const data = await res.json();
 
-  if (!data.success) {
-    alert("Student data mismatch ❌");
-    return;   // 🔥 THIS STOPS QR
+    if (!data.success) {
+      alert("Invalid student details ❌");
+      return; // 🔥 STOP QR HERE
+    }
+
+    // Only runs if success true
+    const encoded = btoa(enrollment);
+
+    new QRCode(document.getElementById("qrcode"), {
+      text: encoded,
+      width: 220,
+      height: 220
+    });
+
+  } catch (err) {
+    alert("Server error");
   }
-
-  let encoded = btoa(enrollment);
-
-  new QRCode(document.getElementById("qrcode"), {
-    text: encoded,
-    width: 220,
-    height: 220
-  });
 }
 </script>
 
