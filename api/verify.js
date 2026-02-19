@@ -1,6 +1,14 @@
 import fs from "fs";
 import path from "path";
 
+function clean(text) {
+  return String(text)
+    .normalize("NFKC")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 export default function handler(req, res) {
   try {
 
@@ -17,17 +25,20 @@ export default function handler(req, res) {
       });
     }
 
-    // 🔥 CORRECT PATH FOR VERCEL
     const filePath = path.join(process.cwd(), "students.json");
 
     const students = JSON.parse(
       fs.readFileSync(filePath, "utf8")
     );
 
+    const inputEnrollment = clean(enrollment);
+    const inputName = clean(name);
+    const inputBranch = clean(branch);
+
     const student = students.find(s =>
-      String(s.enrollment).trim() === String(enrollment).trim() &&
-      s.name.trim().toLowerCase() === name.trim().toLowerCase() &&
-      s.branch.trim().toLowerCase() === branch.trim().toLowerCase()
+      clean(s.enrollment) === inputEnrollment &&
+      clean(s.name) === inputName &&
+      clean(s.branch) === inputBranch
     );
 
     if (!student) {
