@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-const entryFile = path.join(process.cwd(), "entries.json");
+let entries = []; // memory storage
 
 export default function handler(req, res) {
 
@@ -25,12 +25,6 @@ export default function handler(req, res) {
     });
   }
 
-  let entries = [];
-
-  if (fs.existsSync(entryFile)) {
-    entries = JSON.parse(fs.readFileSync(entryFile, "utf8"));
-  }
-
   const alreadyScanned = entries.find(
     e => e.enrollment === enrollment
   );
@@ -50,8 +44,6 @@ export default function handler(req, res) {
   };
 
   entries.push(record);
-
-  fs.writeFileSync(entryFile, JSON.stringify(entries, null, 2));
 
   res.json({
     success: true,
