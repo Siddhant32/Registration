@@ -85,23 +85,17 @@ Generate QR
 </div>
 </div>
 </div>
-
 <script>
 async function generateQR() {
 
   document.getElementById("qrcode").innerHTML = "";
 
   let enrollment = document.getElementById("enrollment").value.trim();
-  let branch = document.getElementById("branch").value;
+  let branch = document.getElementById("branch").value.trim();
   let name = document.getElementById("name").value.trim();
 
   if (!name || !enrollment || !branch) {
-    alert("All fields are required!");
-    return;
-  }
-
-  if (!/^[0-9]+$/.test(enrollment)) {
-    alert("Enrollment must contain only numbers!");
+    alert("All fields required");
     return;
   }
 
@@ -114,15 +108,11 @@ async function generateQR() {
   const data = await res.json();
 
   if (!data.success) {
-    alert("Student not found ❌");
+    alert("Student data mismatch ❌");
     return;
   }
 
-  // Encode full secure data
-  let encoded = btoa(JSON.stringify({
-    enrollment,
-    branch
-  }));
+  let encoded = btoa(enrollment);
 
   new QRCode(document.getElementById("qrcode"), {
     text: encoded,
