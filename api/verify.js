@@ -1,7 +1,6 @@
 import fs from "fs";
 
 export default function handler(req, res) {
-
   try {
 
     if (req.method !== "POST") {
@@ -22,9 +21,9 @@ export default function handler(req, res) {
     );
 
     const student = students.find(s =>
-      s.enrollment === enrollment &&
-      s.name === name &&
-      s.branch === branch
+      String(s.enrollment).trim() === String(enrollment).trim() &&
+      s.name.trim().toLowerCase() === name.trim().toLowerCase() &&
+      s.branch.trim().toLowerCase() === branch.trim().toLowerCase()
     );
 
     if (!student) {
