@@ -1,53 +1,61 @@
-import students from "../students.json" assert { type: "json" };
+import fs from "fs";
+import path from "path";
 
-let scannedToday = [];
+const entryFile = path.join(process.cwd(), "entries.json");
 
 export default function handler(req, res) {
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ success: false });
   }
 
-  const enrollment = String(req.body.enrollment || "").trim();
+  const { enrollment } = req.body;
 
-  // ❌ If no enrollment sent
-  if (!enrollment) {
-    return res.json({ status: "invalid" });
-  }
+  const studentsPath = path.join(process.cwd(), "students.json");
+  const students = JSON.parse(fs.readFileSync(studentsPath, "utf8"));
 
-  // 🔍 Check student exists
   const student = students.find(
-    s => String(s.enrollment).trim() === enrollment
-  );
-
-  if (!student) {
-    return res.json({ status: "invalid" });
-  }
-
-  // 🔁 Check duplicate
-  const already = scannedToday.find(
     s => s.enrollment === enrollment
   );
 
-  if (already) {
-    return res.json({
-      status: "duplicate",
-      name: student.name,
-      enrollment,
-      time: already.time,
-      total: scannedToday.length
+  if (!student) {
+    return res.status(404).json({
+      success: false,
+      message: "Invalid QR ❌"
     });
   }
 
-  const time = new Date().toISOString();
+  let entries = [];
 
-  scannedToday.push({ enrollment, time });
+  if (fs.existsSync(entryFile)) {
+    entries = JSON.parse(fs.readFileSync(entryFile, "utf8"));
+  }
 
-  return res.json({
-    status: "success",
-    name: student.name,
+  const alreadyScanned = entries.find(
+    e => e.enrollment === enrollment
+  );
+
+  if (alreadyScanned) {
+    return res.json({
+      success: false,
+      message: "Already Scanned ❗",
+      total: entries.length
+    });
+  }
+
+  const record = {
     enrollment,
-    time,
-    total: scannedToday.length
+    name: student.name,
+    time: new Date().toLocaleString()
+  };
+
+  entries.push(record);
+
+  fs.writeFileSync(entryFile, JSON.stringify(entries, null, 2));
+
+  res.json({
+    success: true,
+    student,
+    total: entries.length
   });
 }
