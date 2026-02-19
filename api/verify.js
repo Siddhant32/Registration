@@ -7,13 +7,16 @@ export default function handler(req, res) {
     return res.status(405).json({ success: false });
   }
 
-  const { enrollment, branch } = req.body;
+  const { enrollment, branch, name } = req.body;
 
   const filePath = path.join(process.cwd(), "students.json");
   const students = JSON.parse(fs.readFileSync(filePath, "utf8"));
 
   const student = students.find(
-    s => s.enrollment === enrollment && s.branch === branch
+    s =>
+      s.enrollment === enrollment &&
+      s.branch.toLowerCase() === branch.toLowerCase() &&
+      s.name.toLowerCase().trim() === name.toLowerCase().trim()
   );
 
   if (!student) {
