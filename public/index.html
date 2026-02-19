@@ -93,31 +93,36 @@ async function generateQR() {
 
   let enrollment = document.getElementById("enrollment").value.trim();
   let branch = document.getElementById("branch").value;
+  let name = document.getElementById("name").value.trim();
 
-  if(!/^[0-9]+$/.test(enrollment)){
-    alert("Enrollment must contain only numbers!");
+  if (!name || !enrollment || !branch) {
+    alert("All fields are required!");
     return;
   }
 
-  if(branch === ""){
-    alert("Select branch!");
+  if (!/^[0-9]+$/.test(enrollment)) {
+    alert("Enrollment must contain only numbers!");
     return;
   }
 
   const res = await fetch("/api/verify", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ enrollment, branch })
+    body: JSON.stringify({ enrollment, branch, name })
   });
 
   const data = await res.json();
 
-  if(!data.success){
-    alert("Student data not found ❌");
+  if (!data.success) {
+    alert("Student not found ❌");
     return;
   }
 
-  let encoded = btoa(enrollment);
+  // Encode full secure data
+  let encoded = btoa(JSON.stringify({
+    enrollment,
+    branch
+  }));
 
   new QRCode(document.getElementById("qrcode"), {
     text: encoded,
@@ -126,8 +131,6 @@ async function generateQR() {
   });
 }
 </script>
-
-
 
 </body>
 </html>
