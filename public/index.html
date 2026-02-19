@@ -85,42 +85,20 @@ Generate QR
 </div>
 </div>
 </div>
-<script>
-async function generateQR() {
+const res = await fetch("/api/verify", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ enrollment, branch, name })
+});
 
-  document.getElementById("qrcode").innerHTML = "";
+const data = await res.json();
 
-  let enrollment = document.getElementById("enrollment").value.trim();
-  let branch = document.getElementById("branch").value.trim();
-  let name = document.getElementById("name").value.trim();
+console.log("API Response:", data);  // 👈 ADD THIS
 
-  if (!name || !enrollment || !branch) {
-    alert("All fields required");
-    return;
-  }
-
-  const res = await fetch("/api/verify", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ enrollment, branch, name })
-  });
-
-  const data = await res.json();
-
-  if (!data.success) {
-    alert("Student data mismatch ❌");
-    return;
-  }
-
-  let encoded = btoa(enrollment);
-
-  new QRCode(document.getElementById("qrcode"), {
-    text: encoded,
-    width: 220,
-    height: 220
-  });
+if (!data.success) {
+  alert("Student data mismatch ❌");
+  return;
 }
-</script>
 
 </body>
 </html>
