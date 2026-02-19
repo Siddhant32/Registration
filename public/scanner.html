@@ -56,17 +56,29 @@ body {
 <div id="result"></div>
 
 </div>
-
 <script>
+
+let scanner;
 
 function onScanSuccess(decodedText) {
 
-  const enrollment = atob(decodedText);
+  scanner.clear(); // STOP scanning
+
+  let parsed;
+  try {
+    parsed = JSON.parse(atob(decodedText));
+  } catch {
+    document.getElementById("result").innerHTML =
+      "<div class='error'>Invalid QR ❌</div>";
+
+    setTimeout(startScanner, 3000);
+    return;
+  }
 
   fetch("/api/scan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ enrollment })
+    body: JSON.stringify({ enrollment: parsed.enrollment })
   })
   .then(res => res.json())
   .then(data => {
@@ -74,32 +86,45 @@ function onScanSuccess(decodedText) {
     const result = document.getElementById("result");
     const count = document.getElementById("count");
 
-    if(data.success){
+    if (data.success) {
+
       result.innerHTML = `
         <div class="success">
           Entry Allowed ✅ <br>
           ${data.student.name}
         </div>
       `;
+
       count.innerText = data.total;
+
       new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
-    }
-    else{
+
+    } else {
+
       result.innerHTML = `
         <div class="error">
           ${data.message}
         </div>
       `;
+
     }
+
+    // WAIT 4 seconds before scanning again
+    setTimeout(startScanner, 4000);
 
   });
 
 }
 
-new Html5QrcodeScanner(
-  "reader",
-  { fps: 10, qrbox: 250 }
-).render(onScanSuccess);
+function startScanner() {
+  scanner = new Html5QrcodeScanner(
+    "reader",
+    { fps: 10, qrbox: 250 }
+  );
+  scanner.render(onScanSuccess);
+}
+
+startScanner();
 
 </script>
 
