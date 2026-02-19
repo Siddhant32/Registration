@@ -12,17 +12,16 @@ export default function handler(req, res) {
   const filePath = path.join(process.cwd(), "students.json");
   const students = JSON.parse(fs.readFileSync(filePath, "utf8"));
 
-  const student = students.find(
-    s =>
-      s.enrollment === enrollment &&
-      s.branch.toLowerCase() === branch.toLowerCase() &&
-      s.name.toLowerCase().trim() === name.toLowerCase().trim()
+  const student = students.find(student =>
+    student.enrollment === enrollment &&
+    student.branch === branch &&
+    student.name === name
   );
 
   if (!student) {
-    return res.status(404).json({
+    return res.status(400).json({
       success: false,
-      message: "Student data mismatch ❌"
+      message: "Student not found"
     });
   }
 
