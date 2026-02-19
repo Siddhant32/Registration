@@ -112,10 +112,9 @@ async function generateQR() {
 
     if (!data.success) {
       alert("Invalid student details ❌");
-      return; // 🔥 STOP QR HERE
+      return;  // 🔥 Stops QR generation
     }
 
-    // Only runs if success true
     const encoded = btoa(enrollment);
 
     new QRCode(document.getElementById("qrcode"), {
