@@ -1,22 +1,28 @@
+const fs = require("fs");
+const path = require("path");
 
-import fs from "fs";
-import path from "path";
-
-export default function handler(req, res) {
+module.exports = (req, res) => {
 
   if (req.method !== "POST") {
     return res.status(405).json({ success: false });
   }
 
-  const { enrollment, branch, name } = req.body;
+  const { enrollment, name, branch } = req.body;
+
+  if (!enrollment || !name || !branch) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing fields"
+    });
+  }
 
   const filePath = path.join(process.cwd(), "students.json");
   const students = JSON.parse(fs.readFileSync(filePath, "utf8"));
 
-  const student = students.find(student =>
-    student.enrollment === enrollment &&
-    student.branch === branch &&
-    student.name === name
+  const student = students.find(s =>
+    s.enrollment === enrollment &&
+    s.name === name &&
+    s.branch === branch
   );
 
   if (!student) {
@@ -26,8 +32,8 @@ export default function handler(req, res) {
     });
   }
 
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     student
   });
-}
+};
