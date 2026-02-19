@@ -45,11 +45,11 @@ body {
 <i class="bi bi-qr-code"></i> Student Registration
 </h3>
 
-<form>
+<form onsubmit="return false;">
+
 <div class="mb-3">
 <label>Name</label>
-<input type="text" id="name" class="form-control"
-oninput="this.value=this.value.toLowerCase()" required>
+<input type="text" id="name" class="form-control" required>
 </div>
 
 <div class="mb-3">
@@ -75,6 +75,7 @@ pattern="[0-9]+" inputmode="numeric" required>
 class="btn btn-light w-100 fw-bold">
 Generate QR
 </button>
+
 </form>
 
 <div class="text-center mt-4">
@@ -85,20 +86,45 @@ Generate QR
 </div>
 </div>
 </div>
-const res = await fetch("/api/verify", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ enrollment, branch, name })
-});
 
-const data = await res.json();
+<script>
+async function generateQR() {
 
-console.log("API Response:", data);  // 👈 ADD THIS
+  document.getElementById("qrcode").innerHTML = "";
 
-if (!data.success) {
-  alert("Student data mismatch ❌");
-  return;
+  let enrollment = document.getElementById("enrollment").value.trim();
+  let branch = document.getElementById("branch").value.trim();
+  let name = document.getElementById("name").value.trim();
+
+  if (!name || !enrollment || !branch) {
+    alert("All fields required");
+    return;
+  }
+
+  const res = await fetch("/api/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ enrollment, branch, name })
+  });
+
+  const data = await res.json();
+
+  console.log("API Response:", data);
+
+  if (!data.success) {
+    alert("Student data mismatch ❌");
+    return;   // 🔥 THIS STOPS QR
+  }
+
+  let encoded = btoa(enrollment);
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: encoded,
+    width: 220,
+    height: 220
+  });
 }
+</script>
 
 </body>
 </html>
