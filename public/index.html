@@ -92,22 +92,28 @@ async function generateQR() {
   document.getElementById("qrcode").innerHTML = "";
 
   let enrollment = document.getElementById("enrollment").value.trim();
+  let branch = document.getElementById("branch").value;
 
   if(!/^[0-9]+$/.test(enrollment)){
     alert("Enrollment must contain only numbers!");
     return;
   }
 
+  if(branch === ""){
+    alert("Select branch!");
+    return;
+  }
+
   const res = await fetch("/api/verify", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ enrollment })
+    body: JSON.stringify({ enrollment, branch })
   });
 
   const data = await res.json();
 
   if(!data.success){
-    alert("Student not found in system ❌");
+    alert("Student data not found ❌");
     return;
   }
 
@@ -115,11 +121,12 @@ async function generateQR() {
 
   new QRCode(document.getElementById("qrcode"), {
     text: encoded,
-    width: 200,
-    height: 200
+    width: 220,
+    height: 220
   });
 }
 </script>
+
 
 
 </body>
