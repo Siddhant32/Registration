@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 
 export default function handler(req, res) {
   try {
@@ -9,25 +10,25 @@ export default function handler(req, res) {
 
     const { enrollment, name, branch } = req.body;
 
+    if (!enrollment || !name || !branch) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing fields"
+      });
+    }
+
+    // 🔥 CORRECT PATH FOR VERCEL
+    const filePath = path.join(process.cwd(), "students.json");
+
     const students = JSON.parse(
-      fs.readFileSync("./students.json", "utf8")
+      fs.readFileSync(filePath, "utf8")
     );
-
-    console.log("INPUT VALUES:");
-    console.log("Enrollment:", enrollment);
-    console.log("Name:", name);
-    console.log("Branch:", branch);
-
-    console.log("FIRST STUDENT IN JSON:");
-    console.log(students[0]);
 
     const student = students.find(s =>
       String(s.enrollment).trim() === String(enrollment).trim() &&
       s.name.trim().toLowerCase() === name.trim().toLowerCase() &&
       s.branch.trim().toLowerCase() === branch.trim().toLowerCase()
     );
-
-    console.log("MATCH RESULT:", student);
 
     if (!student) {
       return res.status(400).json({
