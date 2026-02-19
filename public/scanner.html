@@ -62,15 +62,15 @@ let scanner;
 
 function onScanSuccess(decodedText) {
 
-  scanner.clear(); // STOP scanning
+  scanner.clear();
 
-  let parsed;
+  let enrollment;
+
   try {
-    parsed = JSON.parse(atob(decodedText));
+    enrollment = atob(decodedText);
   } catch {
     document.getElementById("result").innerHTML =
       "<div class='error'>Invalid QR ❌</div>";
-
     setTimeout(startScanner, 3000);
     return;
   }
@@ -78,7 +78,7 @@ function onScanSuccess(decodedText) {
   fetch("/api/scan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ enrollment: parsed.enrollment })
+    body: JSON.stringify({ enrollment })
   })
   .then(res => res.json())
   .then(data => {
@@ -97,8 +97,6 @@ function onScanSuccess(decodedText) {
 
       count.innerText = data.total;
 
-      new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
-
     } else {
 
       result.innerHTML = `
@@ -109,7 +107,6 @@ function onScanSuccess(decodedText) {
 
     }
 
-    // WAIT 4 seconds before scanning again
     setTimeout(startScanner, 4000);
 
   });
@@ -127,6 +124,7 @@ function startScanner() {
 startScanner();
 
 </script>
+
 
 </body>
 </html>
